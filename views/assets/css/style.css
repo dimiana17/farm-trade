@@ -1,0 +1,639 @@
+
+header img {
+    width: 150px;
+    height: auto;
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa; /* Light gray background */
+  color: #2c3e50; /* Muted dark blue text */
+}
+
+nav {
+  background-color: #008080; /* Teal for the navbar */
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.container {
+  display: none; /* Hide all containers by default */
+}
+.container.active {
+  display: block; /* Show the active container */
+}
+
+#fetchFarmers,
+#insertFarmer {
+  display: inline;
+  min-width: 150px;
+  font-size: medium;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}
+
+button.edit-btn, 
+button.delete-btn, 
+button.sell-btn {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 3px;
+  background-color: #20c997; /* Soft green-teal for buttons */
+  color: white;
+}
+
+button.delete-btn {
+  background-color: #ff6f61; /* Coral red for delete button */
+}
+
+button:hover {
+  opacity: 0.9; /* Slight hover effect */
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  display: none;
+  margin: 0 20px;
+}
+
+.active {
+  display: block;
+}
+
+label, input, button {
+  display: block;
+  margin: 5px 0;
+}
+
+button {
+  background-color: #17a2b8; /* Soft blue-teal for primary buttons */
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+select {
+  background-color: #17a2b8; /* Soft blue-teal for primary buttons */
+  color: white;
+  border: none;
+  padding: 30px;
+  cursor: pointer;
+  min-width: 100px;
+  padding: 5px;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #138496; /* Darker blue-teal on hover */
+}
+
+pre {
+  background-color: #e9ecef; /* Light gray for preformatted text */
+  padding: 10px;
+  border: 1px solid #ced4da; /* Gray border */
+  margin-top: 10px;
+}
+
+.table_data, .customer-table_data {
+  margin-top: 20px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+}
+
+th {
+  background-color: #008080; /* Teal for table header */
+  color: white;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+}
+
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+  background-color: #f0f5f5; /* Very light teal for zebra striping */
+}
+
+tr:hover {
+  background-color: #dfe4ea; /* Soft light gray on hover */
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+.insert_farmer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.container h1 {
+  color: #20c997; /* Teal-green for headings */
+  font-size: 36px;
+  margin-bottom: 40px;
+}
+.popup-content-finance,
+.popup-content, 
+.popup-content-sauce-farmer,
+.popup-content-sauce-customers,
+.popup-content-costomer, 
+.popup-content-costomer-edit,
+.popup-content-o-g-farmer,
+.popup-content-o-g-cust,
+.popup-content-edit,
+.popup-content-sauce-farmer-edit,
+.popup-content-sauce-customers-edit,
+.popup-content-o-g-farmer-edit,
+.popup-content-o-g-cust-edit {
+  display: none;
+  position: fixed; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  width: 400px;
+  max-height: 80%;
+  overflow-y: auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.popup-content.show {
+  display: block; /* Show the pop-up */
+  opacity: 1; /* Make it fully visible */
+}
+
+/* Overlay for dimming the background */
+.overlay {
+  display: none; /* Hidden by default */
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  z-index: 999; /* Below the pop-up */
+  opacity: 0; /* Start as transparent */
+  visibility: hidden; /* Ensure it doesn’t block interactions */
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for opacity and visibility */
+}
+
+.overlay.show {
+  display: block; /* Show the overlay */
+  opacity: 1; /* Make it fully visible */
+  visibility: visible; /* Make it interactive */
+}
+
+
+.popup-content label, 
+.popup-content-costomer label, 
+.popup-content-costomer-edit label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.popup-content input, 
+.popup-content-costomer input, 
+.popup-content-costomer-edit input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.popup-content button, 
+.popup-content-costomer button, 
+.popup-content-costomer-edit button {
+  width: 100%;
+  padding: 12px;
+  background-color: #17a2b8; /* Soft blue-teal */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup-content button:hover, 
+.popup-content-costomer button:hover, 
+.popup-content-costomer-edit button:hover {
+  background-color: #138496; /* Darker blue-teal on hover */
+}
+
+.search {
+  display: inline;
+  text-align: right;
+  min-width: 70px;
+}
+
+.search-container,
+.search-sauce-farmers-container {
+  float: right;
+  margin-right: 0px;
+}
+#comoditName,
+#commodityyName,
+#farmerName, 
+#customerName,
+#sauceFarmerName,
+#sauceCustomerName,
+#farmerDate,
+#customerDate,
+#sauceFarmerDate,
+#sauceCustomerDate,
+#commodityName {
+  padding: 5px;
+  height: 25px;
+}
+
+.sell-btn {
+  padding: 6px 18px;
+  color: white;
+  background-color: #20c997; /* Teal-green for sell button */
+  border-radius: 4px;
+}
+
+.sell-btn:disabled {
+  background-color: #adb5bd; /* Light gray for disabled button */
+  color: #d3d3d3;
+}
+.search-container {
+  display: flex; /* Aligns items horizontally */
+  align-items: center; /* Vertically centers the items */
+  margin-top: 10px; /* Optional: Space above the search container */
+}
+
+.search-container input[type="text"],
+.search-container input[type="date"] {
+  margin-right: 5px; /* Space between inputs */
+  padding: 5px;
+  height: 25px;
+  flex: 1; /* Allows input fields to grow */
+}
+
+.search-container button {
+  padding: 5px 10px; /* Adjust button padding */
+}
+
+
+@media (max-width: 600px) {
+  table {
+      font-size: 14px;
+  }
+
+  th, td {
+      padding: 8px;
+  }
+}
+/* Style for the bill modal */
+.popup-overlay-bill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Darker semi-transparent background */
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content-bill {
+  background: #fff;
+  padding: 20px; /* Smaller padding */
+  width: 45%; /* Smaller width */
+  max-width: 600px; /* Smaller max-width */
+  border-radius: 8px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+  text-align: right;
+  font-family: "IBM Plex Sans Arabic", serif;
+  color: #333;
+}
+
+.popup-content-bill h2#billTitle {
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 20px; /* Reduced font size */
+  color: #333;
+  text-align: center;
+}
+
+.popup-content-bill .close-btn-bill {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 20px; /* Smaller font size */
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.popup-content-bill .close-btn-bill:hover {
+  color: #000;
+}
+
+#og-bill-content {
+  font-size: 14px; /* Slightly smaller font */
+  line-height: 1.6;
+  text-align: right;
+  margin-bottom: 15px;
+}
+
+.save-btn-bill {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px; /* Smaller padding */
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px; /* Slightly smaller font size */
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 15px auto;
+}
+
+.save-btn-bill:hover {
+  background-color: #218838;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 13px; /* Reduced font size */
+  color: #222;
+}
+
+.bill-table thead {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+
+.bill-table th,
+.bill-table td {
+  border: 1px solid #ddd;
+  padding: 8px; /* Smaller padding for cells */
+  text-align: center;
+}
+
+.bill-table tbody tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+.bill-table th {
+  background-color: #666;
+  color: #fff;
+}
+
+.bill-table td {
+  color: #333;
+}
+
+
+.ibm-plex-sans-arabic-thin {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 100;
+}
+
+.ibm-plex-sans-arabic-extralight {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 200;
+}
+
+.ibm-plex-sans-arabic-light {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 300;
+}
+
+.ibm-plex-sans-arabic-regular {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 400;
+}
+
+.ibm-plex-sans-arabic-medium {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 500;
+}
+
+.ibm-plex-sans-arabic-semibold {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 600;
+}
+
+.ibm-plex-sans-arabic-bold {
+  font-family: "IBM Plex Sans Arabic", serif;
+  font-weight: 700;
+}
+.og-popup-overlay-bill ,
+.sauce-popup-overlay-bill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sauce-popup-content-bill ,
+.og-popup-content-bill {
+  background: #fff;
+  padding: 20px; /* Smaller padding */
+  width: 50%; /* Smaller width */
+  max-width: 500px; /* Max width for smaller screens */
+  border-radius: 8px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  font-family: "IBM Plex Sans Arabic", serif;
+  color: #333;
+  position: relative;
+}
+
+.sauce-popup-content-bill h2#billTitle ,
+.og-popup-content-bill h2#billTitle {
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 20px; /* Reduced font size */
+  color: #333;
+}
+
+.sauce-close-btn-bill ,
+.og-close-btn-bill {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 20px; /* Smaller font size */
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.sauce-close-btn-bill:hover ,
+.og-close-btn-bill:hover {
+  color: #000;
+}
+
+#sauce-bill-content ,
+#og-bill-content {
+  font-size: 14px; /* Smaller font size */
+  line-height: 1.6; /* Slightly more compact line height */
+  text-align: right;
+  margin-bottom: 15px;
+}
+
+.save-btn-bill {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px; /* Smaller button padding */
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px; /* Smaller font size */
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 15px auto;
+}
+
+.save-btn-bill:hover {
+  background-color: #218838;
+}
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; 
+  z-index: 1000; 
+  left: 0; 
+  top: 0; 
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; /* 10% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 300px; /* Set a specific width for the modal */
+  max-width: 90%; /* Ensure it doesn't exceed 90% of the viewport */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s; /* Fade in effect */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.close-modal {
+  cursor: pointer;
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+#commission ,
+#OGcommission ,
+#Saucecommission {
+  display: none; /* Initially hidden */
+  background-color: #f9f9f9; /* Light background for visibility */
+  padding: 20px; /* Add some padding */
+  border: 1px solid #ccc; /* Optional border */
+  border-radius: 5px; /* Slightly rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+  width: 300px; /* Set a width for the section */
+  position: relative; /* Ensure it follows the document flow */
+  text-align: center; /* Center align text */
+}
+
+
+#OGtoggleCommission ,
+#SaucetoggleCommission ,
+#toggleCommission {
+  padding: 10px 20px;
+  background-color: #007bff; /* Button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#OGtoggleCommission:hover ,
+#toggleCommission:hover ,
+#SaucetoggleCommission:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+#calculateSum ,
+#OGcalculateSum ,
+#SaucecalculateSum {
+  display: inline-block; /* Change display to inline-block for centering */
+  padding: 10px 20px;
+  background-color: #007bff; /* Button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px; /* Add some space above the button */
+}
+
+#OGcalculateSum:hover ,
+#calculateSum:hover ,
+#SaucecalculateSum:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+input[type="date"] {
+  padding: 5px;
+  margin: 5px 0; /* Space between inputs */
+}

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Management System with jQuery</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet"></head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <body>
+  <!-- Navbar -->
+  <nav>
+    <a href="#" class="nav-link" data-page="farmers">الفلاحين</a>
+    <a href="#" class="nav-link" data-page="customers">العملاء</a>
+    <a href="#" class="nav-link" data-page="sauceFarmers">فلاحين الصلصة</a>
+    <a href="#" class="nav-link" data-page="sauceCustomers">عملاء الصلصة</a>
+    <a href="#" class="nav-link" data-page="onionGarlicFarmers">فلاحين البصل و الثوم</a>
+    <a href="#" class="nav-link" data-page="onionGarlicCustomers">عملاء البصل و الثوم</a>
+    <a href="#" class="nav-link" data-page="importsExpensess">الواردات والمصروفات</a>
+  </nav>
+
+  <!-- Farmers Page -->
+  <div id="farmers" class="container active">
+    <h2>Farmers Management</h2>
+    <button id="fetchTodayFarmers" style="display: inline;">اليومية</button>
+    <button id="sellFarmers" style="display: inline;">اضافة عميل</button>
+    <button id="insertFarmer">اضافة يومية</button>
+    
+    <div class="popup-overlay" style="display: none;"></div>
+    <div class="popup-content" style="display: none;">
+      <form id="farmerForm">
+        <label>اسم الفلاح:</label>
+        <input type="text" id="farmer_name" required><br><br>
+        <label>السلعة:</label>
+        <input type="text" id="commodity_name" required><br><br>
+        <label>الوزن قائم:</label>
+        <input type="number" step="any" value="0"  id="outstanding_amount" required><br><br>
+        <label>العدد:</label>
+        <input type="number" step="any" value="0"  id="commodity_number" required><br><br>
+        <label>السعر:</label>
+        <input type="number" step="any" value="0"  id="price" required><br><br>
+        <label for="commission_percentage">العمولة (%):</label>
+        <input type="number" id="commission_percentage" value="5" min="1" max="100" required>
+        <button type="submit">Add Farmer</button>
+      </form>
+    </div>
+    <div class="popup-overlay-edit" style="display: none;"></div>
+    <div class="popup-content-edit" style="display: none;">
+      <form id="farmerFormEdit">
+        <label>اسم الفلاح:</label>
+        <input type="text" id="farmer_name_edit" required><br><br>
+        
+        <label>السلعة:</label>
+        <input type="text" id="commodity_name_edit" required><br><br>
+        
+        <label>الوزن قائم:</label>
+        <input type="number" step="any" value="0"  id="outstanding_amount_edit" required><br><br>
+        
+        <label>العدد:</label>
+        <input type="number" step="any" value="0"  id="commodity_number_edit" required><br><br>
+        
+        <label>الوزن الصافي:</label>
+        <input type="number" step="any" value="0"  id="net_amount_edit" required><br><br>
+        
+        <label>السعر:</label>
+        <input type="number" step="any" value="0"  id="price_edit" required><br><br>
+        
+        <label>المبلغ:</label>
+        <input type="number" step="any" value="0"  id="cash_edit" required><br><br>
+        
+        <label>العمولة:</label>
+        <input type="number" step="any" value="0"  id="commission_edit" required><br><br>
+        
+        <label>المبلغ المستحق:</label>
+        <input type="number" step="any" value="0"  id="deserved_cash_edit" required><br><br>
+        
+        <button type="submit">تعديل</button>
+    </form>
+    </div>
+    <div class="popup-overlay-costomer" style="display: none;"></div>
+    <div class="popup-content-costomer" style="display: none;">
+      <form id="customerForm">
+        <label for="customer_name">اسم العميل:</label>
+        <input type="text" id="customer_name" required><br><br>
+        <label for="outgoing">المصروف:</label>
+        <input type="number" step="any" value="0"  id="outgoing" required><br><br>
+        <button type="submit">بيع</button>
+      </form>
+    </div>
+    <div class="popup-overlay-bill" style="display:none;">
+      <div class="popup-content-bill">
+          <span class="close-btn-bill">&times;</span>
+          <h2 id="billTitle">مبيع الاخلاص والمحبة</h2>
+          <div id="bill-content"></div> <!-- The bill content will be injected here -->
+          <button id="save-bill-btn" class="save-btn-bill">حفظ الفاتورة</button> <!-- Save button -->
+      </div>
+  </div>
+    <div class="search-container">
+      <input class="search" type="text" id="FarmerName" placeholder="ادخل اسم الفلاح">
+      <input type="date" id="farmerDate" placeholder="Select Date">
+      <input type="search" id="commodityName" placeholder="ادخل السلعة"> <!-- Corrected ID -->
+      <button class="search" id="SearchFarmers">بحث</button>
+  </div>
+  
+    <div class="table_data"></div>
+    <pre id="allFarmers"></pre>
+    <button id="fetchFarmers" style="display: inline;">بيانات الفلاحين</button>
+    <button id="downloadFarmers" style="display: inline;">تحميل البيانات</button> <!-- Button to download Excel -->
+    <button id="deleteAllFarmers" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+    <br>  
+    <button id="toggleCommission" style="margin: 10px;">احسب العمولة</button>
+    <section id="commission">
+      <h2>احسب العمولة</h2>
+      <input type="date" id="startDate" style="display: inline;">
+      <input type="date" id="endDate" style="display: inline;">
+
+      <button id="calculateSum">احسب</button>
+
+      <p id="commissionSumOutput"></p>
+  </section>
+  </div>
+
+  <!-- Customers Page -->
+  <div id="customers" class="container">
+    <h2>Customers Management</h2>
+    <button id="fetchTodayCustomers" style="display: inline;">بيانات عملاء اليوم</button>
+    <div class="popup-overlay-costomer-edit" style="display: none;"></div>
+    <div class="popup-content-costomer-edit" style="display: none;">
+      <form id="customerFormEdit">
+        <label>اسم العميل:</label>
+        <input type="text" id="customer_name_edit" required><br><br>
+        <label>المصروف:</label>
+        <input type="number" step="any" value="0"  id="outgoing_edit" required><br><br>
+        <label>مبلغ العميل:</label>
+        <input type="number" step="any" value="0"  id="customer_cash_edit" required><br><br>
+        <label>المبلغ المدفوع:</label>
+        <input type="number" step="any" value="0"  id="paid_amount_edit" required><br><br>
+        <button type="submit">Update Customer</button>
+      </form>
+    </div>
+    <div class="search-container">
+        <input class="search" type="text" id="customerName" placeholder="ادخل اسم العميل">
+        <input class="search" type="text" id="comoditName" placeholder="ادخل اسم السلعة">
+        <input type="date" id="customerDate" placeholder="Select Date">
+        <button id="searchCustomers" class="search">بحث</button>
+        
+    </div>
+    <pre id="allCustomers"></pre>
+    <div class="customer-table_data"></div>
+    <button id="fetchCustomers" style="display: inline;">بيانات العملاء</button>
+    <button id="downloadcustomers" style="display: inline;">تحميل البيانات</button>
+    <button id="deleteAllCusts" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+
+  </div>
+
+  <!-- Sauce Farmers Page -->
+  <div id="sauceFarmers" class="container">
+    <h2>Sauce Farmers Management</h2>
+    <button id="fetchTodaySauceFarmers" style="display: inline;">يومية فلاحين الصلصة</button>
+    <button id="sellSelectedFarmers" style="display: inline;">اضافة عميل</button>
+    <button id="addSauceFarmer" style="display: inline;">اضافة يومية</button>
+    <div class="search-sauce-farmers-container">
+        <input style="display: inline;" class="search" type="text" id="sauceFarmerName" placeholder="ادخل اسم الفلاح">
+        <input style="display: inline;" type="date" id="sauceFarmerDate" placeholder="Select Date">
+        <button style="display: inline;" class="search" id="searchSauceFarmers">بحث</button>
+    </div>
+    <div class="sauce-table_data"></div>
+    <pre id="allSauceFarmers"></pre>
+    <div class="popup-overlay-sauce-farmer" style="display: none;"></div>
+    <div class="popup-content-sauce-farmer" style="display: none;">
+        <form id="sauceFarmerForm">
+            <label>اسم فلاح الصلصة:</label>
+            <input type="text" id="sauce_farmer_name" required><br><br>
+            <label>الوز القائم:</label>
+            <input type="number" step="any" value="0" id="outstandingamount" required><br><br>
+            <label>السعر:</label>
+            <input type="number" step="any" value="0"  id="sauce_price" required><br><br>
+            <label>النولون:</label>
+            <input type="number" step="any" value="0"  id="nolon" required><br><br>
+            <label>الدفعة المقدمة:</label>
+            <input type="number" step="any" value="0"  id="advance" required><br><br>
+            <label for="S_commission_percentage">العمولة (%):</label>
+        <input type="number" id="S_commission_percentage" value="5" min="1" max="100" required>
+        <button type="submit">Add Sauce Farmer</button>
+        </form>
+    </div>
+  <div class="popup-overlay-sauce-farmer-edit" style="display: none;"></div>
+    <div class="popup-content-sauce-farmer-edit" style="display: none;">
+        <form id="sauceFarmerFormEdit">
+            <label>اسم فلاح الصلصة:</label>
+            <input type="text" id="sauce_farmer_name_edit" required><br><br>
+            <label>الوزن القائم:</label>
+            <input type="number" step="any" value="0"  id="outstandingamount_edit" required><br><br>
+            <label>الوزن الصافي:</label>
+            <input type="number" step="any" value="0"  id="ne_amount_edit" required><br><br>
+            <label>السعر:</label>
+            <input type="number" step="any" value="0"  id="sauce_price_edit" required><br><br>
+            <label>العمولة:</label>
+            <input type="number" step="any" value="0"  id="commissio_edit" required><br><br>
+            <label>النولون:</label>
+            <input type="number" step="any" value="0"  id="nolon_edit" required><br><br>
+            <label>الدفعة المقدمة:</label>
+            <input type="number" step="any" value="0"  id="advance_edit" required><br><br>
+            <label>المبلغ:</label>
+            <input type="number" step="any" value="0"  id="cas_edit" required><br><br>
+            <label> المبلغ المستحق:</label>
+            <input type="number" step="any" value="0"  id="deserve_cash_edit" required><br><br>
+            
+            <button type="submit">تعديل</button>
+        </form>
+    </div>
+    
+    <div class="popup-overlay-sauce-customers" style="display: none;"></div>
+    <div class="popup-content-sauce-customers" style="display: none;">
+        <form id="sauceCustomerForm">
+            <label for="sauce_customer_name">اسم العميل:</label>
+            <input type="text" id="sauce_customer_name" required><br><br>
+            <label for="sauce_Financial_commitment_edit">عهدة:</label>
+            <input type="number" step="any" value="0"  id="sauce_Financial_commitment" required><br><br>
+            <label for="sauce_ras">رص:</label>
+            <input type="number" step="any" value="0"  id="sauce_ras" required><br><br>
+            <button type="submit">بيع</button>
+        </form>
+    </div>
+    <div class="sauce-popup-overlay-bill" style="display:none;">
+      <div class="sauce-popup-content-bill">
+          <span class="sauce-close-btn-bill">&times;</span>
+          <h2 id="billTitle">مبيع الاخلاص والمحبة</h2>
+          <div id="sauce-bill-content"></div> <!-- The bill content will be injected here -->
+          <button id="sauce-save-bill-btn" class="save-btn-bill">حفظ الفاتورة</button> <!-- Save button -->
+      </div>
+  </div>
+    <button id="fetchSauceFarmers" style="display: inline;">بيانات فلاحين الصلصة</button>
+    <button id="downloadSauceFarmers" style="display: inline;">تحميل البيانات</button>
+    <button id="deleteAllSauceFarmers" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+    <br>  
+    <button id="SaucetoggleCommission" style="margin: 10px;">احسب العمولة</button>
+    <section id="Saucecommission">
+      <h2>احسب العمولة</h2>
+      <input type="date" id="SaucestartDate" style="display: inline;">
+      <input type="date" id="SauceendDate" style="display: inline;">
+
+      <button id="SaucecalculateSum">احسب</button>
+
+      <p id="SaucecommissionSumOutput"></p>
+  </section>
+  </div>
+
+  <!-- Sauce Customers Page -->
+  <div id="sauceCustomers" class="container">
+    <h2>Sauce Customers Management</h2>
+    <button id="fetchTodaySauceCustomers" style="display: inline;"> عملاء اليوم</button>
+    <div class="search-container">
+        <input class="search" type="text" id="sauceCustomerName" placeholder="ادخل اسم عميل الصلصة">
+        <input type="date" id="sauceCustomerDate" placeholder="Select Date">
+        <button id="searchSauceCustomers" class="search">بحث</button>
+    </div>
+    <div class="sauce_cust-table_data"></div>
+    <pre id="allSauceCustomers"></pre>
+    <div class="popup-overlay-sauce-customers-edit" style="display: none;"></div>
+    <div class="popup-content-sauce-customers-edit" style="display: none;">
+        <form id="sauceCustomerFormEdit">
+            <label for="sauce_customer_name_edit">اسم العميل:</label>
+            <input type="text" id="sauce_customer_name_edit" required><br><br>
+            <label for="sauce_Financial_commitment_edit">عهدة:</label>
+            <input type="number" step="any" value="0"  id="sauce_Financial_commitment_edit" required><br><br>
+            <label for="sauce_ras_edit">رص:</label>
+            <input type="number" step="any" value="0"  id="sauce_ras_edit" required><br><br>
+            <label for="sauce_customer_cash_edit">مبلغ العميل:</label>
+            <input type="number" step="any" value="0"  id="sauce_customer_cash_edit" required><br><br>
+            <label>المبلغ المدفوع:</label>
+            <input type="number" step="any" value="0"  id="sauce_customer_paid_amount_edit" required><br><br>
+        
+            <button type="submit">Update Sauce Customer</button>
+        </form>
+    </div>
+    <button id="fetchSauceCustomers" style="display: inline;"> جميع بيانات عملاء الصلصة </button>
+    <button id="downloadsaucecustomersDataBtn" style="display: inline;">تحميل البيانات</button>
+    <button id="deleteAllSauceCusts" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+
+  </div>
+
+  <!-- Onion Garlic Farmers Page -->
+  <div id="onionGarlicFarmers" class="container">
+    <h2>Onion Garlic Farmers Management</h2>
+    <button id="fetchTodayOnionFarmers"  style="display: inline;">اليومية</button>
+    <button id="sellSelectedOGFarmers" style="display: inline;">اضافة عميل</button>
+    <button id="addOGFarmer" style="display: inline;">اضافة يومية</button>
+    <div class="search-container">
+        <input class="search" type="text" id="OGFarmerName" placeholder="ادخل اسم الفلاح ">
+        <input type="date" id="OGFarmerDate" placeholder="Select Date">
+        <button id="searchOGFarmers" class="search">بحث</button>
+    </div>
+    <div class="onion-garlic-table_data"></div>
+    <pre id="allOnionFarmers"></pre>
+    <div class="popup-overlay-o-g-farmer" style="display: none;"></div>
+    <div class="popup-content-o-g-farmer" style="display: none;">
+      <form id="ogFarmerForm">
+        <label>اسم فلاح:</label>
+        <input type="text" id="far" required><br><br>
+        <label>الوزن القائم:</label>
+        <input type="number" step="any" value="0"  id="out" required><br><br>
+        <label>السعر:</label>
+        <input type="number" step="any" value="0"  id="pri" required><br><br>
+       <label>النولون:</label>
+        <input type="number" step="any" value="0"  id="nol" required><br><br>
+        <label>الدفعة المقدمة:</label>
+        <input type="number" step="any" value="0"  id="adv" required><br><br>
+        <label for="O_G_commission_percentage">العمولة (%):</label>
+        <input type="number" id="O_G_commission_percentage" value="5" min="1" max="100" required>
+        <button type="submit">اضافة الفلاح</button>
+    </form>
+    
+    </div>
+    <div class="popup-overlay-o-g-farmer-edit" style="display: none;"></div>
+        <div class="popup-content-o-g-farmer-edit" style="display: none;">
+          <form id="ogFarmerFormEdit">
+            <label for="oGFarmerName">اسم فلاح:</label>
+            <input type="text" id="oGFarmerName" required><br><br>
+            <label for="oGOutstandingAmount">الوزن القائم:</label>
+            <input type="number" step="any" value="0"  id="oGOutstandingAmount" required><br><br>
+            <label>الوزن الصافي:</label>
+            <input type="number" step="any" value="0"  id="oGNetAmount" required><br><br>
+            <label for="oGPrice">السعر:</label>
+            <input type="number" step="any" value="0"  id="oGPrice" required><br><br>
+            <label for="oGCommission">العمولة:</label>
+            <input type="number" step="any" value="0"  id="oGCommission" required><br><br>
+            <label for="oGNolon">النولون :</label>
+            <input type="number" step="any" value="0"  id="oGNolon" required><br><br>
+            <label for="oGAdvance">سلفة :</label>
+            <input type="number" step="any" value="0"  id="oGAdvance" required><br><br>
+            <label for="oGCash">المبلغ :</label>
+            <input type="number" step="any" value="0"  id="oGCash" required><br><br>
+            <label for="oGDeservedCash">المبلغ المستحق :</label>
+            <input type="number" step="any" value="0"  id="oGDeservedCash" required><br><br>
+            <button type="submit">تعديل</button>
+        </form>
+        
+        </div>
+        
+    <div class="popup-overlay-o-g-cust" style="display: none;"></div>
+    <div class="popup-content-o-g-cust" style="display: none;">
+      <form id="ogCustForm">
+        <label>اسم العميل:</label>
+        <input type="text" id="cust" required><br><br>
+        <label>العهدة:</label>
+        <input type="number" step="any" value="0"  id="fina" required><br><br>
+        <label>رص:</label>
+        <input type="number" step="any" value="0"  id="rasa" required><br><br>
+        <button type="submit">بيع</button>
+    </form>
+    </div>
+    <div class="og-popup-overlay-bill" style="display:none;">
+      <div class="og-popup-content-bill">
+          <span class="og-close-btn-bill">&times;</span>
+          <h2 id="billTitle">مبيع الاخلاص والمحبة</h2>
+          <div id="og-bill-content"></div> <!-- The bill content will be injected here -->
+          <button id="og-save-bill-btn" class="save-btn-bill">حفظ الفاتورة</button> <!-- Save button -->
+      </div>
+  </div>
+    <button id="fetchOnionFarmers"  style="display: inline;">جميع البيانات</button>
+    <td><button id="downloadOGFarmers" style="display: inline;">تحميل البيانات</button></td>
+    <button id="deleteAllOGFarmers" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+    <br>  
+    <button id="OGtoggleCommission" style="margin: 10px;">احسب العمولة</button>
+    <section id="OGcommission">
+      <h2>احسب العمولة</h2>
+      <input type="date" id="OGstartDate" style="display: inline;">
+      <input type="date" id="OGendDate" style="display: inline;">
+
+      <button id="OGcalculateSum">احسب</button>
+
+      <p id="OGcommissionSumOutput"></p>
+  </section>
+
+  </div>
+
+  <!-- Onion Garlic Customers Page -->
+  <div id="onionGarlicCustomers" class="container">
+    <h2>Onion Garlic Customers Management</h2>
+    <button id="fetchTodayOnionCustomers" class="fetch-btn">عملاء اليوم</button>
+    <div class="popup-overlay-o-g-cust-edit" style="display: none;"></div>
+    <div class="popup-content-o-g-cust-edit" style="display: none;">
+      <form id="ogCustFormEdit">
+        <label for="oGCustNameEdit">اسم العميل:</label>
+        <input type="text" id="oGCustNameEdit" required><br><br>
+        <label for="oGFinancialCommitmentEdit">العهدة:</label>
+        <input type="number" step="any" value="0"  id="oGFinancialCommitmentEdit" required><br><br>
+        <label for="oGrasEdit">رص:</label>
+        <input type="number" step="any" value="0"  id="oGrasEdit" required><br><br>
+        <label for="oGcustomerCashEdit">مبلغ العميل:</label>
+        <input type="number" step="any" value="0"  id="oGcustomerCashEdit" required><br><br>
+        <label>المبلغ المدفوع:</label>
+        <input type="number" step="any" value="0"  id="oGcustomerPaidAmountEdit" required><br><br>
+        <button type="submit">تعديل</button>
+    </form>
+    
+    </div>
+    <div class="search-container">
+        <input class="search" type="text" id="oGCustomerName" placeholder="ادخل اسم العميل">
+        <input type="date" id="oGCustomerDate" placeholder="Select Date">
+        <button id="searchOGCustomers" class="search">بحث</button>
+    </div>
+    <div class="o_g_cust-table_data"></div>
+    <pre id="allOnionCustomers"></pre>
+    <button id="fetchOnionCustomers">جمبع بيانات عملاء </button>
+    <button id="downloadsOnionCustomersDataBtn"  style="display: inline;">تحميل البيانات</button>
+    <button id="deleteAllOGCusts" style="display: inline;">مسح البيانات</button> <!-- Button to download Excel -->
+
+  </div>
+
+  <!-- Imports and Expensess Page -->
+  <div id="importsExpensess" class="container">
+    <h2>Imports and Expensess Management</h2>
+    <button id="today" style="display: inline;">معاملات اليوم</button>
+    <button id="all"  style="display: inline;">جميع معاملات</button>
+    <button id="add"  style="display: inline;">اضافة</button>
+    <div class="import-finance-data">
+      
+      <div id="financeTablesContainer" style="display: none;">
+        <h3>Imports and Expensess</h3>
+        <table id="combinedTable" border="1" cellpadding="10" cellspacing="0" class="info-table">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>الواردات</th>
+                    <th>بيان الواردات</th>
+                    <th>المصروفات</th>
+                    <th>بيان المصروفات</th>
+                </tr>
+            </thead>
+            <tbody class="combined-table-body"></tbody>
+        </table>
+    </div>
+    </div>
+    <div class="popup-overlay-finance" style="display: none;"></div>
+    <div class="popup-content-finance" style="display: none;">
+    <form id="FinanceForm">
+        <label>المبلغ:</label>
+        <input type="number" step="any" value="0"  id="f-cash" required><br><br>
+        <label>البيان:</label>
+        <input type="text" id="statement" required><br><br>
+        <button style="display: inline;" type="button" id="import">ادخال وارد</button>
+        <button style="display: inline;" type="button" id="Expenses">ادخال مصروف</button>
+    </form>
+</div>
+<!-- Modal for Editing -->
+<!-- Edit Modal Structure -->
+<!-- Edit Modal Structure -->
+<div id="edit-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <form id="edit-form">
+          <label for="edit-cash">Cash:</label>
+          <input type="number" id="edit-cash" required>
+          <label for="edit-statement">Statement:</label>
+          <input type="text" id="edit-statement" required>
+          <button type="submit">تعديل</button>
+      </form>
+      <div id="edit-feedback" style="display:none;"></div>
+  </div>
+</div>
+
+
+
+    <button id="downloadFinance"  style="display: inline;">تحميل</button>
+    <!-- <button id="deleteAllFinances" style="display: inline;">مسح البيانات</button> Button to download Excel -->
+
+  </div>
+
+  <!-- jQuery Script -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/farmers/search_farmer.js"></script>
+  <script src="assets/js/farmers/today.js"></script>
+  <script src="assets/js/farmers/get_farmers_by_month.js"></script>
+  <script src="assets/js/farmers/fetch_farmers.js"></script>
+  <script src="assets/js/farmers/insert_farmer.js"></script>
+  <script src="assets/js/farmers/commision_sum.js"></script>
+  <script src="assets/js/customers/fetch_customers.js"></script>
+  <script src="assets/js/customers/search_customer.js"></script>
+  <script src="assets/js/customers/today.js"></script>
+  <script src="assets/js/sauce_farmers/fetch_sauce_farmers.js"></script>
+  <script src="assets/js/sauce_farmers/today.js"></script>
+  <script src="assets/js/sauce_farmers/insert_sauce_farmer.js"></script>
+  <script src="assets/js/sauce_customers/fetch_sauce_customers.js"></script>
+  <script src="assets/js/sauce_farmers/search_sauce_farmers.js"></script>
+  <script src="assets/js/sauce_farmers/commision_sum.js"></script>
+  <script src="assets/js/sauce_customers/search_sauce_customers.js"></script>
+  <script src="assets/js/sauce_customers/today.js"></script>
+  <script src="assets/js/sauce_farmers/sell_sauce_farmers.js"></script>
+  <script src="assets/js/garlic_onion_farmers/fetch_g_o_farmers.js"></script>
+  <script src="assets/js/garlic_onion_farmers/today.js"></script>
+  <script src="assets/js/garlic_onion_farmers/insert_o_g_farmer.js"></script>
+  <script src="assets/js/garlic_onion_farmers/search_g_o_farmers.js"></script>
+  <script src="assets/js/garlic_onion_farmers/sell_o_g_farmers.js"></script>
+  <script src="assets/js/garlic_onion_farmers/commision_sum.js"></script>
+  <script src="assets/js/garlic_onion_customers/fetch_o_g_cust.js"></script>
+  <script src="assets/js/garlic_onion_customers/search_o_g_cust.js"></script>
+  <script src="assets/js/garlic_onion_customers\today.js"></script>
+  <script src="assets/js/farmers/sell_farmers.js"></script>
+  <script src="assets/js/imports_expenses/fetch_imports_expenses.js"></script>
+  <script src="assets/js/imports_expenses/fetch_today_finance.js"></script>
+  <script src="assets/js/imports_expenses/insert.js"></script>
+  <script src="assets/js/farmers/delete_all.js"></script>
+  <script src="assets/js/customers/delete_all.js"></script>
+  <script src="assets/js/sauce_farmers/delete_all.js"></script>
+  <script src="assets/js/sauce_customers/delete_all.js"></script>
+  <script src="assets/js/garlic_onion_farmers/delete_all.js"></script>
+  <script src="assets/js/garlic_onion_customers/delete_all.js"></script>
+  <!-- <script src="assets/js/imports_Expensess/delete_all.js"></script>
+ -->
+  
+  </body>
+</html>
+

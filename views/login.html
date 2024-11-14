@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .login-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            width: 300px;
+        }
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <input type="password" id="adminPassword" placeholder="Enter password" required />
+            <button type="submit">Enter</button>
+            <button type="button" id="changePasswordButton">Change Password</button>
+        </form>
+
+        <form id="changePasswordForm" style="display: none;">
+            <h2>Change Password</h2>
+            <input type="password" id="oldPassword" placeholder="Enter Old Password" required />
+            <input type="password" id="newPassword" placeholder="Enter New Password" required />
+            <button type="submit">Update Password</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let currentPassword = "54321"; // The old password
+
+            // Handle login form submission
+            $('#loginForm').submit(function (e) {
+                e.preventDefault();
+                const enteredPassword = $('#adminPassword').val();
+
+                if (enteredPassword === currentPassword) {
+                    alert("Access granted! Redirecting to the main page...");
+                    window.location.href = "main.html"; // Redirect to main page
+                } else {
+                    alert("Incorrect password.");
+                }
+            });
+
+            // Show change password form
+            $('#changePasswordButton').click(function () {
+                $('#loginForm').hide();
+                $('#changePasswordForm').show();
+            });
+
+            // Handle change password form submission
+            $('#changePasswordForm').submit(function (e) {
+                e.preventDefault();
+                const enteredOldPassword = $('#oldPassword').val();
+                const newPassword = $('#newPassword').val();
+
+                if (enteredOldPassword === currentPassword) {
+                    // Update the password
+                    currentPassword = newPassword; // Set the new password
+                    alert("Password changed successfully!");
+                    // Show the login form again
+                    $('#changePasswordForm').hide();
+                    $('#loginForm').show();
+                    $('#adminPassword').val(''); // Clear the password field
+                    $('#oldPassword').val(''); // Clear the old password field
+                    $('#newPassword').val(''); // Clear the new password field
+                } else {
+                    alert("Incorrect old password.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
